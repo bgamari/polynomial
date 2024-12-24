@@ -6,7 +6,7 @@ import Data.List
 
 -- |The Chebyshev polynomials of the first kind with 'Integer' coefficients.
 ts :: [Poly Integer]
-ts = poly LE [1] : 
+ts = poly LE [1] :
     [ addPoly (x                `multPoly` t_n)
               (poly LE [-1,0,1] `multPoly` u_n)
     | t_n <- ts
@@ -15,7 +15,7 @@ ts = poly LE [1] :
 
 -- The Chebyshev polynomials of the second kind with 'Integer' coefficients.
 us :: [Poly Integer]
-us = 
+us =
     [ addPoly t_n (multPoly x u_n)
     | t_n <- ts
     | u_n <- poly LE [0] : us
@@ -31,8 +31,8 @@ u :: (Num a, Eq a) => Int -> Poly a
 u n | n >= 0    = poly LE . map fromInteger . polyCoeffs LE $ us !! n
     | otherwise = error "u: negative index"
 
--- |Evaluate the n'th Chebyshev polynomial of the first kind at a point X.  
--- Both more efficient and more numerically stable than computing the 
+-- |Evaluate the n'th Chebyshev polynomial of the first kind at a point X.
+-- Both more efficient and more numerically stable than computing the
 -- coefficients and evaluating the polynomial.
 evalT :: Num a => Int -> a -> a
 evalT n x = fst (evalTU n x)
@@ -41,8 +41,8 @@ evalT n x = fst (evalTU n x)
 evalTs :: Num a => a -> [a]
 evalTs = fst . evalTsUs
 
--- |Evaluate the n'th Chebyshev polynomial of the second kind at a point X.  
--- Both more efficient and more numerically stable than computing the 
+-- |Evaluate the n'th Chebyshev polynomial of the second kind at a point X.
+-- Both more efficient and more numerically stable than computing the
 -- coefficients and evaluating the polynomial.
 evalU :: Num a => Int -> a -> a
 evalU n x = snd (evalTU n x)
@@ -76,21 +76,21 @@ tRoots   n = [cos (pi / fromIntegral n * (fromIntegral k + 0.5)) | k <- [0..n-1]
 tExtrema :: Floating a => Int -> [a]
 tExtrema n = [cos (pi / fromIntegral n *  fromIntegral k       ) | k <- [0..n]]
 
--- |@chebyshevFit n f@ returns a list of N coefficients @cs@ such that 
+-- |@chebyshevFit n f@ returns a list of N coefficients @cs@ such that
 -- @f x@ ~= @sum (zipWith (*) cs (evalTs x))@ on the interval -1 < x < 1.
--- 
--- The N roots of the N'th Chebyshev polynomial are the fitting points at 
+--
+-- The N roots of the N'th Chebyshev polynomial are the fitting points at
 -- which the function will be evaluated and at which the approximation will be
 -- exact.  These points always lie within the interval -1 < x < 1.  Outside
 -- this interval, the approximation will diverge quickly.
 --
 -- This function deviates from most chebyshev-fit implementations in that it
--- returns the first coefficient pre-scaled so that the series evaluation 
+-- returns the first coefficient pre-scaled so that the series evaluation
 -- operation is a simple inner product, since in most other algorithms
 -- operating on chebyshev series, that factor is almost always a nuissance.
 chebyshevFit :: Floating a => Int -> (a -> a) -> [a]
-chebyshevFit n f = 
-    [ oneOrTwo / fromIntegral n 
+chebyshevFit n f =
+    [ oneOrTwo / fromIntegral n
     * sum (zipWith (*) ts fxs)
     | ts <- transpose txs
     | oneOrTwo <- 1 : repeat 2
@@ -101,14 +101,14 @@ chebyshevFit n f =
         xs = tRoots n
 
 -- |Evaluate a Chebyshev series expansion with a finite number of terms.
--- 
+--
 -- Note that this function expects the first coefficient to be pre-scaled
 -- by 1/2, which is what is produced by 'chebyshevFit'.  Thus, this computes
 -- a simple inner product of the given list with a matching-length sequence of
 -- chebyshev polynomials.
 evalChebyshevSeries :: Num a => [a] -> a -> a
 evalChebyshevSeries     []  _ = 0
-evalChebyshevSeries (c0:cs) x = 
+evalChebyshevSeries (c0:cs) x =
         let b1:b2:_ = reverse bs
          in x*b1 - b2 + c0
     where

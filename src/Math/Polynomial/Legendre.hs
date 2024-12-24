@@ -3,12 +3,12 @@ module Math.Polynomial.Legendre where
 
 import Math.Polynomial
 
--- |The Legendre polynomials with 'Rational' coefficients.  These polynomials 
--- form an orthogonal basis of the space of all polynomials, relative to the 
+-- |The Legendre polynomials with 'Rational' coefficients.  These polynomials
+-- form an orthogonal basis of the space of all polynomials, relative to the
 -- L2 inner product on [-1,1] (which is given by integrating the product of
 -- 2 polynomials over that range).
 legendres :: [Poly Rational]
-legendres = one : x : 
+legendres = one : x :
     [ multPoly
         (poly LE [recip (n' + 1)])
         (addPoly (poly LE [0, 2 * n' + 1] `multPoly` p_n)
@@ -33,14 +33,14 @@ evalLegendre n t = evalLegendres t !! n
 evalLegendres :: Fractional a => a -> [a]
 evalLegendres t = ps
     where
-       ps = 1 : t : 
+       ps = 1 : t :
             [ ((2 * n + 1) * t * p_n - n * p_nm1) / (n + 1)
             | n     <- iterate (1+) 1
             | p_n   <- tail ps
             | p_nm1 <- ps
             ]
 
--- |Evaluate the n'th Legendre polynomial and its derivative at a point X.  
+-- |Evaluate the n'th Legendre polynomial and its derivative at a point X.
 -- Both more efficient and more numerically stable than computing the
 -- coefficients and evaluating the polynomial.
 evalLegendreDeriv :: Fractional a => Int -> a -> (a,a)
@@ -57,7 +57,7 @@ legendreRoots n eps = map negate mRoots ++ reverse (take (n-m) mRoots)
         -- The rest are reflections.
         m = (n + 1) `div` 2
         mRoots = [improveRoot (z0 i) | i <- [0..m-1]]
-        
+
         -- Initial guess for i'th root of the n'th Legendre polynomial
         z0 i = realToFrac (cos (pi * (fromIntegral i + 0.75) / (fromIntegral n + 0.5)) :: Double)
         -- Improve estimate of a root by newton's method

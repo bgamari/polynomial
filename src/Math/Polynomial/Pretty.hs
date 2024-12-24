@@ -1,4 +1,4 @@
-{-# LANGUAGE 
+{-# LANGUAGE
         ParallelListComp, ViewPatterns,
         FlexibleInstances, FlexibleContexts, IncoherentInstances
   #-}
@@ -39,14 +39,14 @@ instance (RealFloat a, Pretty (Complex a)) => Pretty (Poly (Complex a)) where
 
 pPrintPolyWith prec end v p = parenSep (prec > 5) $ filter (not . isEmpty)
     [ v first coeff exp
-    | (coeff, exp) <- 
+    | (coeff, exp) <-
         (if end == BE then reverse else dropWhile ((0==).fst))
         (zip (polyCoeffs LE p) [0..])
     | first <- True : repeat False
     ]
 
-parenSep p xs = 
-    prettyParen (p && not (null (drop 1 xs)))   
+parenSep p xs =
+    prettyParen (p && not (null (drop 1 xs)))
         (hsep xs)
 
 pPrintOrdTerm   _ _ _ 0 _ = empty

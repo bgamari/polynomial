@@ -13,18 +13,18 @@ select :: [a] -> [(a,[a])]
 select [] = []
 select (x:xs) = (x, xs) : [(y, x:ys) | (y, ys) <- select xs]
 
--- |Returns the Lagrange basis set of polynomials associated with a set of 
--- points. This is the set of polynomials each of which is @1@ at its 
+-- |Returns the Lagrange basis set of polynomials associated with a set of
+-- points. This is the set of polynomials each of which is @1@ at its
 -- corresponding point in the input list and @0@ at all others.
 --
--- These polynomials are especially convenient, mathematically, for 
--- interpolation.  The interpolating polynomial for a set of points  @(x,y)@ 
--- is given by using the @y@s as coefficients for the basis given by 
--- @lagrangeBasis xs@.  Computationally, this is not an especially stable 
+-- These polynomials are especially convenient, mathematically, for
+-- interpolation.  The interpolating polynomial for a set of points  @(x,y)@
+-- is given by using the @y@s as coefficients for the basis given by
+-- @lagrangeBasis xs@.  Computationally, this is not an especially stable
 -- procedure though.  'Math.Polynomial.Interpolation.lagrangePolyFit'
--- implements a slightly better algorithm based on the same idea.  
--- 
--- Generally it is better to not compute the coefficients at all.  
+-- implements a slightly better algorithm based on the same idea.
+--
+-- Generally it is better to not compute the coefficients at all.
 -- 'Math.Polynomial.Interpolation.polyInterp' evaluates the interpolating
 -- polynomial directly, and is both quicker and more stable than any method
 -- I know of that computes the coefficients.
@@ -52,7 +52,7 @@ lagrange xs = foldl1 multPoly
 -- |Compute the weights associated with each abscissa in the Lagrange
 -- barycentric form.
 lagrangeWeights :: Fractional a => [a] -> [a]
-lagrangeWeights xs = 
+lagrangeWeights xs =
     [ recip $ product
         [ x_i - x_j
         | x_j <- otherXs

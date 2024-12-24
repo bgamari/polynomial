@@ -6,7 +6,7 @@ import Math.Polynomial.Lagrange
 import Data.List
 
 -- |Evaluate a polynomial passing through the specified set of points.  The
--- order of the interpolating polynomial will (at most) be one less than 
+-- order of the interpolating polynomial will (at most) be one less than
 -- the number of points given.
 polyInterp :: Fractional a => [(a,a)] -> a -> a
 polyInterp xys = head . last . neville xys
@@ -55,16 +55,16 @@ nevilleDiffs xys x = table
             , not (null x_is)
             ]
 
--- |Fit a polynomial to a set of points by iteratively evaluating the 
+-- |Fit a polynomial to a set of points by iteratively evaluating the
 -- interpolated polynomial (using 'polyInterp') at 0 to establish the
 -- constant coefficient and reducing the polynomial by subtracting that
 -- coefficient from all y's and dividing by their corresponding x's.
--- 
--- Slower than 'lagrangePolyFit' but stable under different sets of 
+--
+-- Slower than 'lagrangePolyFit' but stable under different sets of
 -- conditions.
--- 
--- Note that computing the coefficients of a fitting polynomial is an 
--- inherently ill-conditioned problem.  In most cases it is both faster and 
+--
+-- Note that computing the coefficients of a fitting polynomial is an
+-- inherently ill-conditioned problem.  In most cases it is both faster and
 -- more accurate to use 'polyInterp' or 'nevilleDiffs' instead of evaluating
 -- a fitted polynomial.
 iterativePolyFit :: (Fractional a, Eq a) => [(a,a)] -> Poly a
@@ -74,15 +74,15 @@ iterativePolyFit = poly LE . loop
         loop xys = c0 : loop (drop 1 xys')
             where
                 c0   = polyInterp xys 0
-                xys' = 
+                xys' =
                     [ (x,(y - c0) / x)
                     | (x,y) <- xys
                     ]
 
 -- |Fit a polynomial to a set of points using barycentric Lagrange polynomials.
--- 
--- Note that computing the coefficients of a fitting polynomial is an 
--- inherently ill-conditioned problem.  In most cases it is both faster and 
+--
+-- Note that computing the coefficients of a fitting polynomial is an
+-- inherently ill-conditioned problem.  In most cases it is both faster and
 -- more accurate to use 'polyInterp' or 'nevilleDiffs' instead of evaluating
 -- a fitted polynomial.
 lagrangePolyFit :: (Fractional a, Eq a) => [(a,a)] -> Poly a

@@ -11,12 +11,12 @@ module Math.Polynomial.Bernstein
 import Math.Polynomial
 import Data.List
 
--- |The Bernstein basis polynomials.  The @n@th inner list is a basis for 
+-- |The Bernstein basis polynomials.  The @n@th inner list is a basis for
 -- the polynomials of order @n@ or lower.  The @n@th basis consists of @n@
--- polynomials of order @n@ which sum to @1@, and have roots of varying 
+-- polynomials of order @n@ which sum to @1@, and have roots of varying
 -- multiplicities at @0@ and @1@.
 bernstein :: [[Poly Integer]]
-bernstein = 
+bernstein =
     [ [ scalePoly nCv p `multPoly` q
       | q <- reverse qs
       | p <- ps
@@ -49,7 +49,7 @@ bernsteinFit n f = [f (fromIntegral v / fromIntegral n) | v <- [0..n]]
 
 -- |Evaluate a polynomial given as a list of @n@ coefficients for the @n@th
 -- Bernstein basis.  Roughly:
--- 
+--
 -- > evalBernsteinSeries cs = sum (zipWith scalePoly cs (bernstein !! (length cs - 1)))
 evalBernsteinSeries :: Num a => [a] -> a -> a
 evalBernsteinSeries [] = const 0
@@ -67,7 +67,7 @@ deCasteljau cs t = cs : deCasteljau (zipWith (interp t) cs (tail cs)) t
 -- and a parameter value @x@, split the polynomial into two halves, mapping
 -- @[0,x]@ and @[x,1]@ respectively onto @[0,1]@.
 --
--- A typical use for this operation would be to split a Bezier curve 
+-- A typical use for this operation would be to split a Bezier curve
 -- (inserting a new knot at @x@).
 splitBernsteinSeries :: Num a => [a] -> a -> ([a], [a])
 splitBernsteinSeries cs t = (map head betas, map last (reverse betas))

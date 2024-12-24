@@ -1,5 +1,5 @@
 {-# LANGUAGE ViewPatterns #-}
--- |This stuff is somewhat experimental.  I am not sure how useful the 
+-- |This stuff is somewhat experimental.  I am not sure how useful the
 -- rational function manipulation stuff is, overall, due to truncation
 -- error issues in polynomial division.  Works well with exact Rational
 -- coefficients though, and the evaluation functions are fine for any
@@ -19,7 +19,7 @@ data RationalPoly a = RationalPoly
 instance Fractional a => Show (RationalPoly a) where
     showsPrec prec (reduce -> RationalPoly _ p q) = showParen (prec > 7)
         ( showsPrec 7 p
-        . showString " % " 
+        . showString " % "
         . showsPrec 8 q
         )
 

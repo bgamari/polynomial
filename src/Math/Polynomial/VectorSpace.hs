@@ -1,7 +1,7 @@
 {-# LANGUAGE ParallelListComp, ViewPatterns, FlexibleContexts #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 -- TODO: update all haddock comments
--- |Same general interface as Math.Polynomial, but using AdditiveGroup, 
+-- |Same general interface as Math.Polynomial, but using AdditiveGroup,
 -- VectorSpace, etc., instead of Num where sensible.
 module Math.Polynomial.VectorSpace
     ( Endianness(..)
@@ -47,27 +47,27 @@ one = polyN 1 LE [1]
 x :: (Num a, Eq a) => Poly a
 x = polyN 2 LE [0,1]
 
--- |Given some constant 'k', construct the polynomial whose value is 
+-- |Given some constant 'k', construct the polynomial whose value is
 -- constantly 'k'.
 constPoly :: (Eq a, AdditiveGroup a) => a -> Poly a
 constPoly x = vPolyN 1 LE [x]
 
 -- |Given some scalar 's' and a polynomial 'f', computes the polynomial 'g'
 -- such that:
--- 
+--
 -- > evalPoly g x = s * evalPoly f x
-scalePoly :: (Eq a, VectorSpace a, AdditiveGroup (Scalar a), Eq (Scalar a)) 
+scalePoly :: (Eq a, VectorSpace a, AdditiveGroup (Scalar a), Eq (Scalar a))
     => Scalar a -> Poly a -> Poly a
 scalePoly = (*^)
 
 -- |Given some polynomial 'f', computes the polynomial 'g' such that:
--- 
+--
 -- > evalPoly g x = negate (evalPoly f x)
 negatePoly :: (AdditiveGroup a, Eq a) => Poly a -> Poly a
 negatePoly = vTrim . rawMapPoly negateV
 
 -- |Given polynomials 'f' and 'g', computes the polynomial 'h' such that:
--- 
+--
 -- > evalPoly h x = evalPoly f x + evalPoly g x
 addPoly :: (AdditiveGroup a, Eq a) => Poly a -> Poly a -> Poly a
 addPoly p@(vPolyCoeffs LE ->  a) q@(vPolyCoeffs LE ->  b) = vPolyN n LE (zipSumV a b)
@@ -81,7 +81,7 @@ sumPolys [] = zero
 sumPolys ps = poly LE (foldl1 zipSumV (map (vPolyCoeffs LE) ps))
 
 -- |Given polynomials 'f' and 'g', computes the polynomial 'h' such that:
--- 
+--
 -- > evalPoly h x = evalPoly f x * evalPoly g x
 multPolyWith :: (AdditiveGroup a, Eq a) => (a -> a -> a) -> Poly a -> Poly a -> Poly a
 multPolyWith multiplyV p@(vPolyCoeffs LE -> xs) q@(vPolyCoeffs LE -> ys) = vPolyN n LE (multPolyWithLE multiplyV xs ys)
@@ -98,7 +98,7 @@ multPolyWithLE multiplyV xs (y:ys) = foldr mul [] xs
 
 -- |Given a polynomial 'f' and exponent 'n', computes the polynomial 'g'
 -- such that:
--- 
+--
 -- > evalPoly g x = evalPoly f x ^ n
 powPolyWith :: (AdditiveGroup a, Eq a, Integral b) => a -> (a -> a -> a) -> Poly a -> b -> Poly a
 powPolyWith one multiplyV p n
@@ -108,13 +108,13 @@ powPolyWith one multiplyV p n
         multPoly = multPolyWith multiplyV
         powPoly p 0 = constPoly one
         powPoly p 1 = p
-        powPoly p n 
+        powPoly p n
             | odd n     = p `multPoly` powPoly p (n-1)
             | otherwise = (\x -> multPoly x x) (powPoly p (n`div`2))
 
 -- |Given polynomials @a@ and @b@, with @b@ not 'zero', computes polynomials
 -- @q@ and @r@ such that:
--- 
+--
 -- > addPoly (multPoly q b) r == a
 quotRemPolyWith :: (AdditiveGroup a, Eq a) => (a -> a -> a) -> (a -> a -> a) -> Poly a -> Poly a -> (Poly a, Poly a)
 quotRemPolyWith _ _ _ b | polyIsZero b = error "quotRemPoly: divide by zero"
@@ -149,15 +149,15 @@ remPolyWith multiplyV divideV (vPolyCoeffs BE -> u) (vPolyCoeffs BE -> v)
                 u' = tail (zipSumV u (map (multiplyV (negateV q0)) v))
 
 -- |@composePoly f g@ constructs the polynomial 'h' such that:
--- 
+--
 -- > evalPoly h = evalPoly f . evalPoly g
--- 
--- This is a very expensive operation and, in general, returns a polynomial 
+--
+-- This is a very expensive operation and, in general, returns a polynomial
 -- that is quite a bit more expensive to evaluate than @f@ and @g@ together
--- (because it is of a much higher order than either).  Unless your 
+-- (because it is of a much higher order than either).  Unless your
 -- polynomials are quite small or you are quite certain you need the
--- coefficients of the composed polynomial, it is recommended that you 
--- simply evaluate @f@ and @g@ and explicitly compose the resulting 
+-- coefficients of the composed polynomial, it is recommended that you
+-- simply evaluate @f@ and @g@ and explicitly compose the resulting
 -- functions.  This will usually be much more efficient.
 composePolyWith :: (AdditiveGroup a, Eq a) => (a -> a -> a) -> Poly a -> Poly a -> Poly a
 composePolyWith multiplyV (vPolyCoeffs LE -> cs) (vPolyCoeffs LE -> ds) = poly LE (foldr mul [] cs)
@@ -165,12 +165,12 @@ composePolyWith multiplyV (vPolyCoeffs LE -> cs) (vPolyCoeffs LE -> ds) = poly L
         -- Implementation note: this is a hand-inlining of the following
         -- (with the 'Num' instance in "Math.Polynomial.NumInstance"):
         -- > composePoly f g = evalPoly (fmap constPoly f) g
-        -- 
+        --
         -- This is a very expensive operation, something like
-        -- O(length cs ^ 2 * length ds) I believe. There may be some more 
-        -- tricks to improve that, but I suspect there isn't much room for 
-        -- improvement. The number of terms in the resulting polynomial is 
-        -- O(length cs * length ds) already, and each one is the sum of 
+        -- O(length cs ^ 2 * length ds) I believe. There may be some more
+        -- tricks to improve that, but I suspect there isn't much room for
+        -- improvement. The number of terms in the resulting polynomial is
+        -- O(length cs * length ds) already, and each one is the sum of
         -- quite a few terms.
         mul c acc = addScalarLE c (multPolyWithLE multiplyV acc ds)
 
@@ -181,7 +181,7 @@ addScalarLE a [] = [a]
 addScalarLE a (b:bs) = (a ^+^ b) : bs
 
 -- |Evaluate a polynomial at a point or, equivalently, convert a polynomial
--- to the function it represents.  For example, @evalPoly 'x' = 'id'@ and 
+-- to the function it represents.  For example, @evalPoly 'x' = 'id'@ and
 -- @evalPoly ('constPoly' k) = 'const' k.@
 evalPoly :: (VectorSpace a, Eq a, AdditiveGroup (Scalar a), Eq (Scalar a)) => Poly a -> Scalar a -> a
 evalPoly (vPolyCoeffs LE -> cs) x
@@ -199,9 +199,9 @@ evalPolyDeriv (vPolyCoeffs LE -> cs) x = foldr mul (zeroV, zeroV) cs
     where
         mul c (p, dp) = ((x *^ p) ^+^ c, (x *^ dp) ^+^ p)
 
--- |Evaluate a polynomial and all of its nonzero derivatives at a point.  
+-- |Evaluate a polynomial and all of its nonzero derivatives at a point.
 -- This is roughly equivalent to:
--- 
+--
 -- > evalPolyDerivs p x = map (`evalPoly` x) (takeWhile (not . polyIsZero) (iterate polyDeriv p))
 evalPolyDerivs :: (VectorSpace a, Eq a, Num (Scalar a)) => Poly a -> Scalar a -> [a]
 evalPolyDerivs (vPolyCoeffs LE -> cs) x = trunc . zipWith (*^) factorials $ foldr mul [] cs
@@ -221,11 +221,11 @@ contractPoly p@(vPolyCoeffs LE -> cs) a = (vPolyN n LE q, r)
         cut remainder swap = (swap ^+^ (a *^ remainder), remainder)
         (r,q) = mapAccumR cut zeroV cs
 
--- |@gcdPoly a b@ computes the highest order monic polynomial that is a 
--- divisor of both @a@ and @b@.  If both @a@ and @b@ are 'zero', the 
+-- |@gcdPoly a b@ computes the highest order monic polynomial that is a
+-- divisor of both @a@ and @b@.  If both @a@ and @b@ are 'zero', the
 -- result is undefined.
 gcdPolyWith :: (AdditiveGroup a, Eq a) => a -> (a -> a -> a) -> (a -> a -> a) -> Poly a -> Poly a -> Poly a
-gcdPolyWith oneV multiplyV divideV a b 
+gcdPolyWith oneV multiplyV divideV a b
     | polyIsZero b  = if polyIsZero a
         then error "gcdPolyWith: gcdPoly zero zero is undefined"
         else monicPolyWith oneV divideV a
@@ -247,7 +247,7 @@ polyDeriv p@(vPolyCoeffs LE -> cs) = vPolyN (rawPolyDegree p) LE
     | n <- iterate (1+) 1
     ]
 
--- |Compute all nonzero derivatives of a polynomial, starting with its 
+-- |Compute all nonzero derivatives of a polynomial, starting with its
 -- \"zero'th derivative\", the original polynomial itself.
 polyDerivs :: (VectorSpace a, Eq a, Num (Scalar a)) => Poly a -> [Poly a]
 polyDerivs p = take (1 + polyDegree p) (iterate polyDeriv p)

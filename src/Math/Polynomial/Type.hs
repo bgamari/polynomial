@@ -1,4 +1,4 @@
-{-# LANGUAGE ViewPatterns, TypeFamilies, GADTs, UndecidableInstances #-}
+{-# LANGUAGE ViewPatterns, TypeFamilies, GADTs, UndecidableInstances, FlexibleContexts #-}
 -- |Low-level interface for the 'Poly' type.
 module Math.Polynomial.Type
     ( Endianness(..)
